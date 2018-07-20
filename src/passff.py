@@ -32,16 +32,14 @@ def getMessage():
     message = sys.stdin.buffer.read(messageLength).decode("utf-8")
     return json.loads(message)
 
-def encodeMessage(messageContent):
+def sendMessage(messageContent):
     """ Encode a message for transmission, given its content. """
     encodedContent = json.dumps(messageContent)
     encodedLength = struct.pack('@I', len(encodedContent))
-    return {'length': encodedLength, 'content': encodedContent}
 
-def sendMessage(encodedMessage):
     """ Send an encoded message to stdout. """
-    sys.stdout.buffer.write(encodedMessage['length'])
-    sys.stdout.write(encodedMessage['content'])
+    sys.stdout.buffer.write(encodedLength)
+    sys.stdout.write(encodedContent)
     sys.stdout.flush()
 
 if __name__ == "__main__":
@@ -88,9 +86,9 @@ if __name__ == "__main__":
     proc = subprocess.run(cmd, **proc_params)
 
     # Send response
-    sendMessage(encodeMessage({
+    sendMessage({
         "exitCode": proc.returncode,
         "stdout": proc.stdout.decode(CHARSET),
         "stderr": proc.stderr.decode(CHARSET),
         "version": VERSION
-    }))
+    })
